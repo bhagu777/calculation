@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -68,14 +67,14 @@ class HomeController extends GetxController {
     update();
   }
 
-  // check Answer Right Or Wrong //
+  // check Answer Right Or Wrong Function //
   void checkAnswerRightOrWrong() {
     if (int.tryParse(rightAnswer) == answerCorrect) {
       totalPoints++;
       correctAmount.clear();
-      update();
       generateNewQuestion();
       resetTimer();
+      update();
     } else {
       handleWrongAnswer();
     }
