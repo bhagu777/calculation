@@ -34,7 +34,7 @@ class HomeView extends GetView<HomeController> {
                                 children: List.generate(
                                   3,
                                   (index) => Icon(
-                                    index < controller.totalLives
+                                    index < controller.totalLives.value
                                         ? Icons.favorite
                                         : Icons.favorite_border,
                                     color: Colors.white,
@@ -85,10 +85,10 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ),
                       onChanged: (value) {
-                        controller.rightAnswer = value;
+                        controller.rightAnswer.value = value;
                       },
                       onSubmitted: (value) {
-                        controller.rightAnswer = value;
+                        controller.rightAnswer.value = value;
                         controller.checkAnswerRightOrWrong();
                       },
                     ),
@@ -100,7 +100,7 @@ class HomeView extends GetView<HomeController> {
                     height: 24,
                   ),
                   Align(
-                    alignment: Alignment.bottomCenter ,
+                    alignment: Alignment.bottomCenter,
                     child: Container(
                       color: Colors.purple.withOpacity(0.5),
                       padding: EdgeInsets.all(16),
@@ -179,7 +179,8 @@ class HomeView extends GetView<HomeController> {
                                     .onKeyPressed((index + 1).toString()),
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.all(20),
-                                  backgroundColor: Colors.purple.withOpacity(0.5),
+                                  backgroundColor:
+                                      Colors.purple.withOpacity(0.5),
                                 ),
                                 child: Text(
                                   (index + 1).toString(),

@@ -5,13 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
-  RxInt totalPoints = 0.obs;
-  int totalLives = 3;
+  Rx<int> totalPoints = 0.obs;
+  Rx<int> totalLives = 3.obs;
   String question = '';
-  int answerCorrect = 0;
-  String rightAnswer = '';
+  Rx<int> answerCorrect = 0.obs;
+  RxString rightAnswer = ''.obs;
   Timer? timer;
-  int timeLeft = 10;
+  Rx<int> timeLeft = 10.obs;
   TextEditingController correctAmount = TextEditingController();
 
   @override
@@ -22,11 +22,16 @@ class HomeController extends GetxController {
     startTimer();
   }
 
-  // start Timer Function //
-  void startTimer() {
+  Future<void> startTimer() async {
+
+    if (timer?.isActive ?? false) {
+      timer?.cancel();
+    }
+
+    // Start a new periodic timer
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (timeLeft > 0) {
-        timeLeft--;
+      if (timeLeft.value > 0) {
+        timeLeft.value--;
         update();
       } else {
         handleWrongAnswer();
@@ -34,28 +39,31 @@ class HomeController extends GetxController {
     });
   }
 
+
   // get Container Height Function//
   double getContainerHeight() {
-    return 150 + (10 - timeLeft) * 12;
+    return 150 + (10 - timeLeft.value) * 12;
   }
 
   // get Color Based On Time Function //
   Color getColorBasedOnTime() {
-
     double red = 255;
-    double green = 255 - ((255 - 105) * (10 - timeLeft) / 10);
-    double blue = 255 - ((255 - 180) * (10 - timeLeft) / 10);
+    double green = 255 - ((255 - 105) * (10 - timeLeft.value) / 10);
+    double blue = 255 - ((255 - 180) * (10 - timeLeft.value) / 10);
 
     return Color.fromRGBO(red.toInt(), green.toInt(), blue.toInt(), 1.0);
   }
 
-  // reset Timer Function //
-  void resetTimer() {
-    timer?.cancel();
-    timeLeft = 10;
-    startTimer();
-    displayValue.value = '';
-    update();
+  Future<void> resetTimer() async {
+    print("Resetting timer..."); // Debug statement
+    timer?.cancel(); // Cancel any active timer
+    timeLeft.value = 10; // Reset the timeLeft to 10
+    displayValue.value = ''; // Clear any display value (if applicable)
+
+    // Ensure that startTimer correctly initializes a new timer
+    await startTimer(); // Start the new timer
+
+    update(); // Update the UI or state to reflect changes
   }
 
   // generate New Question Function //
@@ -68,24 +76,24 @@ class HomeController extends GetxController {
 
     switch (operator) {
       case '+':
-        answerCorrect = num2 + num1;
+        answerCorrect.value = num2 + num1;
         break;
       case '-':
-        answerCorrect = num2 - num1;
+        answerCorrect.value = num2 - num1;
         break;
       case '*':
-        answerCorrect = num2 * num1;
+        answerCorrect.value = num2 * num1;
         break;
     }
 
     question = '$num1 $operator $num2';
-    rightAnswer = '';
+    rightAnswer.value = '';
     update();
   }
 
   // check Answer Right Or Wrong Function //
   void checkAnswerRightOrWrong() {
-    if (int.tryParse(rightAnswer) == answerCorrect) {
+    if (int.tryParse(rightAnswer.value) == answerCorrect.value) {
       totalPoints.value++;
       correctAmount.clear();
       generateNewQuestion();
@@ -102,27 +110,12 @@ class HomeController extends GetxController {
   // handle Wrong Answer Function //
   void handleWrongAnswer() {
     if (totalLives > 0) {
-      totalLives--;
-      correctAmount.clear();
-
-      if (!isSnackBarShown) {
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          const SnackBar(
-            content: Text('Answer is incorrect'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.red,
-          ),
-        );
-        isSnackBarShown = true;
-      }
-
+      totalLives.value--;
       update();
-
       if (totalLives == 0) {
         timer?.cancel();
         showGameOverDialog();
       } else {
-        isSnackBarShown = false;
         generateNewQuestion();
         resetTimer();
       }
@@ -186,7 +179,7 @@ class HomeController extends GetxController {
   // restart Game Function//
   void restartGame() {
     totalPoints.value = 0;
-    totalLives = 3;
+    totalLives.value = 3;
     update();
     generateNewQuestion();
     resetTimer();
@@ -202,8 +195,7 @@ class HomeController extends GetxController {
 
   // Function to handle key press
   void onKeyPressed(String value) {
-    displayValue.value +=
-        value;
+    displayValue.value += value;
     update();
   }
 
@@ -231,7 +223,7 @@ class HomeController extends GetxController {
   // on Submit button //
   void onSubmit() {
     print("saddadsd");
-    if (int.tryParse(displayValue.value) == answerCorrect) {
+    if (int.tryParse(displayValue.value) == answerCorrect.value) {
       _handleCorrectAnswer();
     } else {
       handleWrongAnswer1();
@@ -240,14 +232,11 @@ class HomeController extends GetxController {
 
 // Handle correct answer submission //
   void _handleCorrectAnswer() {
-
     print("Submitted Answer: $displayValue");
     totalPoints.value++;
 
     generateNewQuestion();
     resetTimer();
-    update();
-
     displayValue.value = "";
     update();
   }
@@ -255,9 +244,9 @@ class HomeController extends GetxController {
 // Handle wrong answer submission //
   void handleWrongAnswer1() {
     if (totalLives > 0) {
-      totalLives--;
-      correctAmount.clear();
-      _showWrongAnswerSnackBar();
+      totalLives.value--;
+
+      // _showWrongAnswerSnackBar();
       update();
       if (totalLives == 0) {
         _handleGameOver();
@@ -277,8 +266,7 @@ class HomeController extends GetxController {
           backgroundColor: Colors.red,
         ),
       );
-      isSnackBarShown =
-          true;
+      isSnackBarShown = true;
     }
   }
 
