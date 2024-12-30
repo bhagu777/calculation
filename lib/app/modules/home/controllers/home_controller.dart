@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -23,7 +24,6 @@ class HomeController extends GetxController {
   }
 
   Future<void> startTimer() async {
-
     if (timer?.isActive ?? false) {
       timer?.cancel();
     }
@@ -39,10 +39,9 @@ class HomeController extends GetxController {
     });
   }
 
-
   // get Container Height Function//
   double getContainerHeight() {
-    return 150 + (10 - timeLeft.value) * 12;
+    return 150 + (10 - timeLeft.value) * 30;
   }
 
   // get Color Based On Time Function //
@@ -55,15 +54,14 @@ class HomeController extends GetxController {
   }
 
   Future<void> resetTimer() async {
-    print("Resetting timer..."); // Debug statement
-    timer?.cancel(); // Cancel any active timer
-    timeLeft.value = 10; // Reset the timeLeft to 10
-    displayValue.value = ''; // Clear any display value (if applicable)
+    print("Resetting timer...");
+    timer?.cancel();
+    timeLeft.value = 10;
+    displayValue.value = '';
 
-    // Ensure that startTimer correctly initializes a new timer
-    await startTimer(); // Start the new timer
+    await startTimer();
 
-    update(); // Update the UI or state to reflect changes
+    update();
   }
 
   // generate New Question Function //
@@ -71,17 +69,14 @@ class HomeController extends GetxController {
     Random random = Random();
     int num1 = random.nextInt(10) + 1;
     int num2 = random.nextInt(10) + 1;
-    List<String> operators = ['+', '-', 'X'];
-    String operator = operators[random.nextInt(3)];
+    List<String> operators = ['+', 'X'];
+    String operator = operators[random.nextInt(2)];
 
     switch (operator) {
       case '+':
         answerCorrect.value = num2 + num1;
         break;
-      case '-':
-        answerCorrect.value = num2 - num1;
-        break;
-      case '*':
+      case 'X':
         answerCorrect.value = num2 * num1;
         break;
     }
@@ -136,11 +131,8 @@ class HomeController extends GetxController {
               Expanded(
                 child: TextButton(
                   style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                        side: const BorderSide(color: Colors.purple, width: 1)),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12.0, horizontal: 20.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0), side: const BorderSide(color: Colors.purple, width: 1)),
+                    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
                   ),
                   onPressed: () {
                     SystemNavigator.pop();
@@ -156,8 +148,7 @@ class HomeController extends GetxController {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12.0, horizontal: 20.0),
+                    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
                   ),
                   onPressed: () {
                     Navigator.of(Get.context!).pop();
@@ -208,8 +199,7 @@ class HomeController extends GetxController {
   // back space Function //
   void backspace() {
     if (displayValue.value.isNotEmpty) {
-      displayValue.value =
-          displayValue.value.substring(0, displayValue.value.length - 1);
+      displayValue.value = displayValue.value.substring(0, displayValue.value.length - 1);
     }
     update();
   }
@@ -243,12 +233,11 @@ class HomeController extends GetxController {
 
 // Handle wrong answer submission //
   void handleWrongAnswer1() {
-    if (totalLives > 0) {
+    if (totalLives.value > 0) {
       totalLives.value--;
 
-      // _showWrongAnswerSnackBar();
       update();
-      if (totalLives == 0) {
+      if (totalLives.value == 0) {
         _handleGameOver();
       } else {
         _prepareForNextAttempt();
@@ -256,19 +245,6 @@ class HomeController extends GetxController {
     }
   }
 
-// Show snackbar for wrong answer feedback //
-  void _showWrongAnswerSnackBar() {
-    if (!isSnackBarShown) {
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        const SnackBar(
-          content: Text('Answer is incorrect'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
-      );
-      isSnackBarShown = true;
-    }
-  }
 
 // Handle game over logic  //
   void _handleGameOver() {
